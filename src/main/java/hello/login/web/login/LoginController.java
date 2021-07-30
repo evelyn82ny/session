@@ -45,4 +45,17 @@ public class LoginController {
         httpServletResponse.addCookie(cookie);
         return "redirect:/";
     }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse httpServletResponse){
+        expireCookie(httpServletResponse, "memberId");
+        return "redirect:/";
+    }
+
+    private void expireCookie(HttpServletResponse httpServletResponse, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setMaxAge(0);
+        httpServletResponse.addCookie(cookie);
+    }
+
 }
