@@ -2,6 +2,7 @@ package hello.login.web.login;
 
 import hello.login.domain.login.LoginService;
 import hello.login.domain.member.Member;
+import hello.login.web.SessionConst;
 import hello.login.web.session.SessionManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @Slf4j
 @Controller
@@ -30,7 +31,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@Validated @ModelAttribute LoginForm form, BindingResult bindingResult,
-                        HttpServletResponse httpServletResponse){
+                        HttpServletRequest httpServletRequest){
         if(bindingResult.hasErrors()){
             return "login/loginForm";
         }
@@ -43,13 +44,17 @@ public class LoginController {
             return "login/loginForm";
         }
 
-        sessionManager.createSession(loginMember, httpServletResponse);
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute(SessionConst.LOGIN_MEMBER, loginMember);
         return "redirect:/";
     }
 
     @PostMapping("/logout")
     public String logout(HttpServletRequest httpServletRequest){
-        sessionManager.expire(httpServletRequest);
+        HttpSession session = httpServletRequest.getSession(false);
+        if(session != null){
+            session.invalidate();
+        }
         return "redirect:/";
     }
 
